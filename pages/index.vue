@@ -49,7 +49,7 @@ import { USelectMenu } from '#build/components';
       </div>
     </div>
     <div>
-      <TransactionModal v-model="isOpen" />
+      <TransactionModal v-model="isOpen" @saved="refreshTransactions()" />
       <UButton
         icon="i-heroicons-plus-circle"
         color="white"
@@ -109,7 +109,10 @@ const fetchTransactions = async () => {
   isLoading.value = true;
   try {
     const { data } = await useAsyncData("transactions", async () => {
-      const { data, error } = await supabase.from("transactions").select();
+      const { data, error } = await supabase
+        .from("transactions")
+        .select()
+        .order("created_at", { ascending: false });
 
       if (error) {
         return [];
@@ -140,6 +143,16 @@ const transactionsGroupedByDate = computed(() => {
 
     grouped[date].push(transaction);
   }
+
+  /*   const sortedKeys = Object.keys(grouped).sort().reverse();
+  const sortedGrouped = {};
+
+  for (const key of sortedKeys) {
+    sortedGrouped[key] = grouped[key];
+  }
+
+  return sortedGrouped; */
+
   return grouped;
 });
 </script>
